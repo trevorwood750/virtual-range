@@ -1,14 +1,117 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#101820"><link rel="manifest" href="manifest.webmanifest"><title>Virtual Range</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#101820">
+<title>Virtual Range – Laser Calibration</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#101820;color:#f5f7fa;font-family:-apple-system,BlinkMacSystemFont,sans-serif}header,main{max-width:720px;margin:auto;padding:16px}h1{font-size:22px}.panel{background:#1b2833;border:1px solid #40515e;border-radius:15px;padding:15px;margin:12px 0}.target{background:#edf0f2;border-radius:12px;aspect-ratio:4/3;display:grid;place-items:center}svg{width:85%;height:85%}video{width:100%;max-height:360px;background:#000;border-radius:10px}button{padding:13px 17px;border:0;border-radius:10px;background:#d8e8f5;color:#111;font-weight:700;font-size:16px;margin:8px 6px 0 0}.secondary{background:#40515e;color:white}.small{font-size:13px;line-height:1.5;color:#bdcbd5}#status{font-size:14px;color:#b9e6c5;margin-top:10px}
-</style></head><body><header><h1>Virtual Range <small style="font-size:12px;color:#aebdca">Prototype 0.1</small></h1></header><main>
-<section class="panel"><h3>Target display test</h3><div class="target"><svg viewBox="0 0 400 300"><circle cx="200" cy="150" r="130" fill="white" stroke="#111" stroke-width="3"/><circle cx="200" cy="150" r="100" fill="none" stroke="#111" stroke-width="3"/><circle cx="200" cy="150" r="70" fill="none" stroke="#111" stroke-width="3"/><circle cx="200" cy="150" r="40" fill="none" stroke="#111" stroke-width="3"/><circle cx="200" cy="150" r="12" fill="#111"/></svg></div><p class="small">This verifies target display only. It does not detect or score shots yet.</p></section>
-<section class="panel"><h3>Camera permission test</h3><p class="small">Tap Start camera and allow Safari to use the rear camera. The preview stays on your phone; this prototype does not record or upload it.</p><video id="v" playsinline autoplay muted></video><br><button id="start">Start camera</button><button class="secondary" id="stop">Stop camera</button><div id="status">Camera not started.</div></section>
-<p class="small">Safety: display/camera test only. For later dry-fire testing, keep live ammunition out of the training area, verify the firearm is unloaded, and maintain a safe direction.</p></main>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#101820;color:#f4f6f8}
+header{padding:14px 16px;background:#17232d;border-bottom:1px solid #34434f}
+h1{font-size:19px;margin:0}p{color:#b9c5ce;font-size:13px;line-height:1.4}
+main{padding:14px;max-width:850px;margin:auto}
+.stage{position:relative;background:#000;border:1px solid #43515d;border-radius:12px;overflow:hidden;aspect-ratio:16/9}
+video,canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+canvas{pointer-events:none}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+button{background:#263744;color:white;border:1px solid #526574;border-radius:9px;padding:12px;font-size:14px;font-weight:650}
+button.primary{background:#176b4b;border-color:#279b70}
+button:disabled{opacity:.45}
+.panel{background:#17232d;border:1px solid #34434f;border-radius:12px;padding:12px;margin-top:12px}
+label{display:block;font-size:13px;color:#c7d1d9;margin-bottom:7px}
+input[type=range]{width:100%}
+.status{font-size:14px;font-weight:650;margin-top:8px}
+#message{color:#c5d0d8}
+#corners{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.corner{font-size:12px;padding:7px 9px;border-radius:7px;background:#263744}
+.hit{position:absolute;width:34px;height:34px;border:3px solid #ff3434;border-radius:50%;transform:translate(-50%,-50%);display:none;pointer-events:none}
+@media(max-width:520px){.controls{grid-template-columns:1fr 1fr}button{padding:11px 7px}}
+</style>
+</head>
+<body>
+<header><h1>Virtual Range · Laser Calibration</h1></header>
+<main>
+<p>Point the phone’s rear camera at the TV or projector. Allow camera access, then use the calibration controls.</p>
+<div class="stage" id="stage">
+  <video id="video" autoplay muted playsinline></video>
+  <canvas id="overlay"></canvas>
+  <div class="hit" id="hit"></div>
+</div>
+<div class="controls">
+<button class="primary" id="start">Start rear camera</button>
+<button id="stop" disabled>Stop camera</button>
+<button id="calibrate" disabled>Calibrate screen corners</button>
+<button id="clear">Clear calibration</button>
+</div>
+<div class="panel">
+<label for="sensitivity">Red-light sensitivity: <strong id="sensValue">70</strong></label>
+<input id="sensitivity" type="range" min="10" max="100" value="70">
+<div class="status" id="status">Camera not started</div>
+<p id="message">After starting the camera, tap “Calibrate screen corners” and tap the four screen corners in order: top-left, top-right, bottom-right, bottom-left.</p>
+<div id="corners">
+<span class="corner">1 · Top left</span><span class="corner">2 · Top right</span>
+<span class="corner">3 · Bottom right</span><span class="corner">4 · Bottom left</span>
+</div>
+</div>
+<div class="panel">
+<strong>Laser detection</strong>
+<p>Detection looks for a small, bright red spot in the camera image. Reflections, red objects, and screen content can cause false hits. Use this as an experimental visual aid, not as a measurement or safety system.</p>
+</div>
+</main>
 <script>
-let s=null;const v=document.getElementById('v'),st=document.getElementById('status');
-document.getElementById('start').onclick=async()=>{try{if(!navigator.mediaDevices?.getUserMedia)throw Error('Camera access requires Safari on an HTTPS website.');s=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});v.srcObject=s;await v.play();st.textContent='Camera running.'}catch(e){st.textContent='Camera error: '+e.message}};
-document.getElementById('stop').onclick=()=>{if(s)s.getTracks().forEach(t=>t.stop());s=null;v.srcObject=null;st.textContent='Camera stopped.'};
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-</script></body></html>
+const video=document.querySelector('#video'), stage=document.querySelector('#stage');
+const canvas=document.querySelector('#overlay'), ctx=canvas.getContext('2d');
+const start=document.querySelector('#start'), stop=document.querySelector('#stop');
+const calibrate=document.querySelector('#calibrate'), clear=document.querySelector('#clear');
+const statusEl=document.querySelector('#status'), message=document.querySelector('#message');
+const sensitivity=document.querySelector('#sensitivity'), sensValue=document.querySelector('#sensValue');
+const hit=document.querySelector('#hit');
+let stream=null, points=[], choosing=false, raf=0, lastHit=0;
+function resize(){const r=stage.getBoundingClientRect();canvas.width=Math.round(r.width*devicePixelRatio);canvas.height=Math.round(r.height*devicePixelRatio);ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0)}
+new ResizeObserver(resize).observe(stage);resize();
+sensitivity.addEventListener('input',()=>sensValue.textContent=sensitivity.value);
+start.onclick=async()=>{
+ try{
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+  video.srcObject=stream; await video.play(); start.disabled=true;stop.disabled=false;calibrate.disabled=false;
+  statusEl.textContent='Camera running';message.textContent='Tap “Calibrate screen corners” to map the projected screen.';
+  detect();
+ }catch(e){statusEl.textContent='Camera unavailable';message.textContent='Allow camera access in Safari settings and make sure this page is served over HTTPS.'}
+};
+stop.onclick=()=>{cancelAnimationFrame(raf);if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;start.disabled=false;stop.disabled=true;calibrate.disabled=true;statusEl.textContent='Camera stopped'};
+calibrate.onclick=()=>{points=[];choosing=true;hit.style.display='none';message.textContent='Tap the four screen corners in order: top-left, top-right, bottom-right, bottom-left.';draw()};
+clear.onclick=()=>{points=[];choosing=false;hit.style.display='none';message.textContent='Calibration cleared. Tap “Calibrate screen corners” to start again.';draw()};
+stage.addEventListener('click',e=>{
+ if(!choosing)return;const r=stage.getBoundingClientRect();points.push({x:e.clientX-r.left,y:e.clientY-r.top});
+ if(points.length===4){choosing=false;message.textContent='Four corners saved for this session.'}else message.textContent=`Corner ${points.length} saved. Tap corner ${points.length+1}.`;
+ draw();
+});
+function draw(){
+ const w=stage.clientWidth,h=stage.clientHeight;ctx.clearRect(0,0,w,h);
+ points.forEach((p,i)=>{ctx.fillStyle='#39e6a0';ctx.beginPath();ctx.arc(p.x,p.y,6,0,Math.PI*2);ctx.fill();ctx.fillStyle='white';ctx.font='12px system-ui';ctx.fillText(String(i+1),p.x+9,p.y-9)});
+ if(points.length===4){ctx.strokeStyle='#39e6a0';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);points.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));ctx.closePath();ctx.stroke()}
+}
+function detect(){
+ if(!stream||video.readyState<2){raf=requestAnimationFrame(detect);return}
+ const vw=video.videoWidth,vh=video.videoHeight;if(!vw||!vh){raf=requestAnimationFrame(detect);return}
+ const sample=document.createElement('canvas');sample.width=160;sample.height=90;
+ const sctx=sample.getContext('2d',{willReadFrequently:true});sctx.drawImage(video,0,0,160,90);
+ const data=sctx.getImageData(0,0,160,90).data;let best=-1,bx=0,by=0;
+ const threshold=Number(sensitivity.value);
+ for(let y=1;y<89;y++)for(let x=1;x<159;x++){
+  const i=(y*160+x)*4,r=data[i],g=data[i+1],b=data[i+2];
+  const score=r-Math.max(g,b);
+  if(r>threshold*2.1&&score>threshold&&score>best){best=score;bx=x;by=y}
+ }
+ if(best>threshold&&Date.now()-lastHit>250){
+  const vr=video.getBoundingClientRect(),sr=stage.getBoundingClientRect();
+  const x=(bx/160)*vr.width+(vr.left-sr.left),y=(by/90)*vr.height+(vr.top-sr.top);
+  hit.style.left=x+'px';hit.style.top=y+'px';hit.style.display='block';lastHit=Date.now();
+  statusEl.textContent='Possible red laser detected';
+ }else if(Date.now()-lastHit>700){hit.style.display='none';statusEl.textContent='Scanning for a bright red spot…'}
+ raf=requestAnimationFrame(detect);
+}
+</script>
+</body></html>
