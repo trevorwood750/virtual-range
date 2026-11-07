@@ -1,53 +1,1262 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101820">
-<title>Range Lab — Camera Laser Dry-Fire Trainer</title>
-<style>
-:root{color-scheme:dark;--ink:#f2f5f7;--muted:#9eafba;--gold:#e4bd70;--line:#304250;--panel:#17222c;--green:#73cf9b;--red:#ed6359}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#2b3c49,#0b1118 68%);color:var(--ink);font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{max-width:1480px;margin:auto;padding:clamp(10px,2vw,26px)}header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}.brand{font-size:clamp(20px,2.4vw,30px);font-weight:950;letter-spacing:.14em}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.17em;margin-top:3px}.status{border:1px solid var(--line);border-radius:99px;background:#111b24;padding:8px 11px;color:#cbd6dd;font-size:11px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#73808a;margin-right:6px}.dot.good{background:var(--green);box-shadow:0 0 9px #73cf9b88}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:13px;align-items:start}.panel{background:linear-gradient(145deg,#192632f5,#111a23f5);border:1px solid var(--line);border-radius:13px;padding:13px;box-shadow:0 14px 36px #0003}.stage{position:relative;overflow:hidden;width:100%;aspect-ratio:16/9;min-height:300px;border:1px solid #536674;border-radius:9px;background:#39464a;isolation:isolate}.stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%}.stage video{object-fit:fill;z-index:0;opacity:0;pointer-events:none}.stage video.show{opacity:1}.stage canvas{z-index:1}.stage-label,.score{position:absolute;top:11px;z-index:3;padding:7px 10px;background:#08121cda;border:1px solid #ffffff36;border-radius:6px;font-size:10px;letter-spacing:.13em;font-weight:850;text-transform:uppercase;pointer-events:none}.stage-label{left:11px}.score{right:11px}.cal-points{position:absolute;inset:0;z-index:5;pointer-events:none}.cal-points i{position:absolute;width:18px;height:18px;border:3px solid #fff;border-radius:50%;box-shadow:0 0 8px #000;background:#e4bd70;transform:translate(-50%,-50%);display:none}.controls{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}button,select,input{font:inherit}button{border:1px solid #405767;border-radius:8px;background:linear-gradient(#263847,#1b2a35);color:var(--ink);padding:10px 11px;font-weight:800;letter-spacing:.045em;cursor:pointer}button:hover{border-color:#9bb0bd}button:active{transform:translateY(1px)}button.primary,.game-btn.active{background:linear-gradient(#f2d38c,#d2a34e);color:#18232a;border-color:#ffe5ad}.controls button{font-size:10px;text-transform:uppercase}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}.stat{padding:9px 10px;border:1px solid #304554;border-radius:8px;background:linear-gradient(140deg,#203141,#15212c)}.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}.stat span{font-size:9px;color:var(--muted);letter-spacing:.12em;font-weight:850}.side{display:flex;flex-direction:column;gap:10px}.side h2{margin:0 0 10px;font-size:12px;letter-spacing:.14em;text-transform:uppercase}.games{display:grid;grid-template-columns:1fr 1fr;gap:6px}.game-btn{font-size:10px;padding:10px 5px;min-height:40px;text-transform:uppercase}.field{display:grid;gap:6px;margin:12px 0}.field label{color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.field select{background:#1b2b37;color:var(--ink);border:1px solid #405767;border-radius:7px;padding:9px}.settings{display:grid;grid-template-columns:1fr 1fr;gap:7px}.settings button{font-size:10px;padding:9px 6px}.hint{margin-top:10px;padding:10px;border:1px solid #304654;border-radius:8px;background:#101b25;color:#bcc9d0;font-size:11px;line-height:1.55}.history{max-height:150px;overflow:auto;color:#c5d0d7;font-size:11px}.history div{padding:7px 0;border-bottom:1px solid #ffffff14}.camera-help{color:var(--muted);font-size:11px;line-height:1.5}.foot{text-align:center;color:#82939d;font-size:10px;margin:12px}.app.projector-mode{max-width:none;padding:0}.app.projector-mode header,.app.projector-mode .side,.app.projector-mode .stats,.app.projector-mode .hint,.app.projector-mode .foot{display:none!important}.app.projector-mode .layout{display:block}.app.projector-mode .panel{border:0;border-radius:0;padding:0;background:#080e15}.app.projector-mode .stage{width:100vw;height:100svh;min-height:0;aspect-ratio:auto;border:0;border-radius:0}.app.projector-mode .controls{position:fixed;z-index:8;bottom:max(7px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(720px,calc(100vw - 14px));padding:6px;justify-content:center;flex-wrap:nowrap;background:#08121cce;border:1px solid #ffffff40;border-radius:9px;backdrop-filter:blur(8px);margin:0}.app.projector-mode .controls button{flex:1;min-width:0;padding:8px 5px;font-size:9px;white-space:nowrap}@media(max-width:900px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .wide{grid-column:1/-1}}@media(max-width:520px){.app{padding:8px}.layout{gap:8px}.panel{padding:10px}.stage{min-height:225px;aspect-ratio:4/3}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.side{display:flex}.controls button{flex:1 1 30%;padding:10px 5px;font-size:9px}.app.projector-mode .controls{flex-wrap:wrap}.app.projector-mode .controls button{flex:1 1 30%}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d141b" />
+  <title>Range Lab — Projector Dry Fire Simulator</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a1117;
+      --bg-2: #101b24;
+      --panel: #121f2b;
+      --panel-2: #162936;
+      --panel-3: #1b2d39;
+      --line: #2e4354;
+      --line-soft: rgba(255,255,255,0.09);
+      --ink: #edf3f7;
+      --muted: #9db0bb;
+      --gold: #e7ba66;
+      --gold-2: #f3d68c;
+      --green: #7ed9a5;
+      --red: #eb6458;
+      --shadow: rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin:0; min-height:100%; background:radial-gradient(circle at 50% -10%, #294153 0%, #0d141b 36%, #090e12 100%); color:var(--ink); font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { min-height:100vh; }
+    button, select, input { font: inherit; }
+
+    .app {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 20px clamp(10px, 2vw, 22px) 16px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      line-height: 1;
+    }
+
+    .brand-main {
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: clamp(20px, 2.2vw, 30px);
+    }
+
+    .brand-sub {
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    .mode-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(13,20,25,0.7);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #dfeaf2;
+    }
+
+    .mode-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(126,217,165,0.9);
+      display: inline-block;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 310px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      background: linear-gradient(145deg, rgba(25,36,45,0.96), rgba(12,18,24,0.96));
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 18px 38px rgba(0,0,0,0.18);
+      padding: 14px;
+    }
+
+    .stage-wrap {
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #21333d;
+    }
+
+    .stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 320px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #506777 0%, #7c7d6d 32%, #544f42 54%, #2d2f2d 100%);
+    }
+
+    .stage video,
+    .stage canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .stage video {
+      object-fit: cover;
+      opacity: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: #111b21;
+    }
+
+    .stage video.visible {
+      opacity: 1;
+    }
+
+    .stage canvas {
+      z-index: 2;
+    }
+
+    .stage-label {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 5;
+      padding: 7px 10px;
+      background: rgba(8,18,24,0.76);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 7px;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .score-chip {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      background: rgba(8,18,24,0.76);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .calibration-markers {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 8;
+      pointer-events: none;
+    }
+
+    .calibration-markers span {
+      position: absolute;
+      display: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid white;
+      background: var(--gold);
+      box-shadow: 0 0 10px rgba(255,255,255,0.34);
+      transform: translate(-50%, -50%);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid #425b6d;
+      background: linear-gradient(180deg, #253a4b, #172935);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.08s ease, border-color 0.12s ease;
+    }
+
+    .btn:hover { border-color: #9db4c0; }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary {
+      background: linear-gradient(180deg, #f4d58f, #d6a14c);
+      color: #1b2329;
+      border-color: #f3dfb4;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      background: linear-gradient(180deg, #192c39, #13212b);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 10px 10px 9px;
+      min-height: 72px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: clamp(24px, 1.8vw, 29px);
+      line-height: 1;
+      font-weight: 900;
+      margin-bottom: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .aside {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .aside .panel {
+      padding: 12px 14px;
+    }
+
+    .aside h3 {
+      margin: 0 0 12px;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #e3edf5;
+    }
+
+    .games {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .game-btn {
+      display: block;
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 6px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #1d2d39, #152330);
+      color: var(--ink);
+      border-radius: 8px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .game-btn.active {
+      background: linear-gradient(180deg, #f0d288, #d7a64d);
+      color: #1b2329;
+      border-color: #f6e4b4;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .field label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid #415a6d;
+      border-radius: 8px;
+      background: rgba(18,29,37,0.95);
+      color: var(--ink);
+      padding: 9px 10px;
+      font-weight: 700;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .mini-btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #233545, #16232f);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 9px 6px;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--gold);
+    }
+
+    .hint {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 11px;
+      background: rgba(13,20,26,0.8);
+      color: #d3dde5;
+      line-height: 1.6;
+      font-size: 12px;
+    }
+
+    .history {
+      max-height: 180px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      background: rgba(9,15,20,0.42);
+      padding: 0 8px;
+    }
+
+    .history div {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 8px 4px;
+      font-size: 12px;
+      color: #d2dfe9;
+    }
+
+    .history div:last-child { border-bottom: none; }
+
+    .footer {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #8396a2;
+    }
+
+    .projector-mode .topbar,
+    .projector-mode .aside,
+    .projector-mode .stats,
+    .projector-mode .footer,
+    .projector-mode .hint {
+      display: none !important;
+    }
+
+    .projector-mode .app {
+      max-width: none;
+      padding: 0;
+    }
+
+    .projector-mode .layout {
+      display: block;
+    }
+
+    .projector-mode .panel {
+      padding: 0;
+      border: none;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .projector-mode .stage-wrap {
+      border: none;
+      border-radius: 0;
+    }
+
+    .projector-mode .stage {
+      width: 100vw;
+      height: 100vh;
+      min-height: 0;
+      aspect-ratio: auto;
+      border-radius: 0;
+    }
+
+    .projector-mode .toolbar {
+      position: fixed;
+      left: 50%;
+      bottom: max(10px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(720px, calc(100vw - 18px));
+      background: rgba(8,14,19,0.74);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
+      padding: 8px;
+      backdrop-filter: blur(10px);
+      z-index: 30;
+      justify-content: center;
+    }
+
+    .projector-mode .toolbar .btn {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 9px 6px;
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .aside .wide { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 560px) {
+      .app { padding: 10px; }
+      .topbar { align-items: flex-start; }
+      .brand-main { letter-spacing: 0.1em; }
+      .brand-sub { letter-spacing: 0.12em; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .aside { display: flex; }
+      .games { grid-template-columns: 1fr; }
+      .toolbar { gap: 6px; }
+      .toolbar .btn { flex-basis: calc(50% - 6px); }
+      .stage { min-height: 220px; }
+    }
+  </style>
 </head>
-<body><main class="app" id="app">
-<header><div class="brand">RANGE LAB<small>CAMERA-TRACKED LASER DRY-FIRE PRACTICE</small></div><div class="status"><i class="dot" id="camDot"></i><span id="camStatus">Camera off</span></div></header>
-<div class="layout"><section class="panel"><div class="stage" id="stage"><video id="video" autoplay playsinline muted></video><canvas id="scene" aria-label="Projected interactive dry-fire range"></canvas><div class="stage-label" id="sceneTitle">POP-UP KNOCKDOWN</div><div class="score">SCORE&nbsp; <span id="total">0</span></div><div class="cal-points" id="calMarks"><i></i><i></i><i></i><i></i></div></div>
-<div class="controls"><button id="startCam" class="primary">Start rear camera</button><button id="calibrate">Calibrate 4 corners</button><button id="detect">Enable detection</button><button id="overlay">Camera preview</button><button id="reset">Reset drill</button><button id="projector">Projector mode</button></div>
-<div class="stats"><div class="stat"><b id="hits">0</b><span>HITS</span></div><div class="stat"><b id="last">—</b><span>LAST SCORE</span></div><div class="stat"><b id="elapsed">00:00</b><span>TIME</span></div><div class="stat"><b id="accuracy">—</b><span>HIT RATE</span></div></div>
-<div class="hint" id="hint"><b>Setup:</b> Connect the phone to your projector and aim the rear camera at the projected range. Start the camera, calibrate the four visible screen corners, then enable detection. Keep the phone fixed. Camera access requires HTTPS and Safari permission.</div></section>
-<aside class="side"><section class="panel wide"><h2>Choose a drill</h2><div class="games"><button class="game-btn active" data-game="knock">Pop-up</button><button class="game-btn" data-game="steel">Steel rack</button><button class="game-btn" data-game="spinner">Spinner</button><button class="game-btn" data-game="balloon">Balloon</button><button class="game-btn" data-game="bottles">Bottle line</button><button class="game-btn" data-game="moving">Moving</button></div><div class="field"><label for="count">Target layout</label><select id="count"><option value="5">5 targets</option><option value="7" selected>7 targets</option><option value="9">9 targets</option></select></div></section>
-<section class="panel"><h2>Camera & laser settings</h2><div class="settings"><button id="sensitivityDown">Sensitivity −</button><button id="sensitivityUp">Sensitivity +</button></div><div class="field"><label>Laser sensitivity <span id="sensitivityLabel">75%</span></label><input id="sensitivity" type="range" min="20" max="100" value="75"></div><div class="camera-help">Use a laser training cartridge/device, not live ammunition. Aim for even lighting, avoid reflective surfaces, and calibrate again if the phone or projection moves. Preview shows the rear camera on the range display; leave it off during projector use to avoid feedback.</div></section>
-<section class="panel"><h2>Recent hits</h2><div class="history" id="history"><div>No hits recorded.</div></div></section></aside></div><div class="foot">Dry-fire practice only · follow all firearm and laser trainer safety instructions.</div></main>
-<script>
-(()=>{
-const $=id=>document.getElementById(id),canvas=$('scene'),ctx=canvas.getContext('2d'),stage=$('stage'),video=$('video'),app=$('app');
-const layouts={5:[[.14,.29],[.32,.24],[.50,.29],[.68,.24],[.86,.29]],7:[[.12,.28],[.37,.23],[.63,.23],[.88,.28],[.25,.59],[.50,.55],[.75,.59]],9:[[.10,.28],[.30,.23],[.50,.23],[.70,.23],[.90,.28],[.20,.60],[.40,.56],[.60,.56],[.80,.60]]};
-const names={knock:'POP-UP KNOCKDOWN',steel:'STEEL RACK',spinner:'REACTIVE SPINNER',balloon:'BALLOON ARCADE',bottles:'BOTTLE LINE',moving:'MOVING TARGETS'};
-let game='knock',count=7,targets=[],stream=null,detectorOn=false,calibrating=false,calibration=[],hits=0,misses=0,total=0,running=false,startedAt=0,timer=null,raf=0,frameCount=0,lastHit=0,lastSpot=null,stable=0,preview=false,sensitivity=75,detected=null;
-const proc=document.createElement('canvas'),pctx=proc.getContext('2d',{willReadFrequently:true});
-function resize(){const r=stage.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*d);canvas.height=Math.round(r.height*d);ctx.setTransform(d,0,0,d,0,0);draw()}
-function makeTargets(){const positions=layouts[count],scale=count===9?.84:count===5?1.06:1;targets=positions.map(([x,y],i)=>({x,y,w:(game==='balloon'?.052:game==='spinner'?.065:game==='bottles'?.055:.067)*scale,h:(game==='balloon'?.115:game==='spinner'?.14:game==='bottles'?.17:.22)*scale,alive:true,phase:i*.8,angle:0}));$('sceneTitle').textContent=names[game];draw()}
-function background(w,h){if(preview&&video.srcObject)return;let g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#506777');g.addColorStop(.42,'#929487');g.addColorStop(.56,'#665f51');g.addColorStop(1,'#292d2b');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.fillStyle='#68695f';ctx.beginPath();ctx.moveTo(0,h*.53);ctx.lineTo(w*.14,h*.43);ctx.lineTo(w*.28,h*.5);ctx.lineTo(w*.43,h*.34);ctx.lineTo(w*.57,h*.5);ctx.lineTo(w*.73,h*.37);ctx.lineTo(w*.88,h*.49);ctx.lineTo(w,h*.4);ctx.lineTo(w,h*.68);ctx.lineTo(0,h*.7);ctx.fill();let gr=ctx.createLinearGradient(0,h*.55,0,h);gr.addColorStop(0,'#958064');gr.addColorStop(1,'#30302b');ctx.fillStyle=gr;ctx.fillRect(0,h*.55,w,h*.45);ctx.strokeStyle='#e2d0aa45';ctx.lineWidth=2;for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(w*i/4,h*.58);ctx.lineTo(w*(.48+(i-2)*.22),h);ctx.stroke()}ctx.strokeStyle='#d5c7a355';ctx.beginPath();ctx.moveTo(0,h*.56);ctx.lineTo(w,h*.56);ctx.stroke()}
-function drawTarget(t,i,w,h){if(!t.alive)return;const x=t.x*w,y=t.y*h,tw=t.w*w,th=t.h*h;ctx.save();ctx.translate(x,y);ctx.rotate(t.angle);ctx.shadowColor='#0009';ctx.shadowBlur=10;ctx.shadowOffsetY=5;
-if(game==='balloon'){ctx.fillStyle=['#cf4b44','#438fa4','#d4ad4b'][i%3];ctx.strokeStyle='#fff0cc';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,-th*.1,tw*.49,th*.4,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#fff8';ctx.beginPath();ctx.ellipse(-tw*.17,-th*.25,tw*.1,th*.12,-.4,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.moveTo(-tw*.07,th*.31);ctx.lineTo(0,th*.43);ctx.lineTo(tw*.07,th*.31);ctx.fillStyle='#e5d7b8';ctx.fill()}
-else if(game==='spinner'){ctx.strokeStyle='#b9c4c4';ctx.lineWidth=Math.max(3,tw*.1);for(let a=0;a<4;a++){let q=a*Math.PI/2+t.angle;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(q)*tw*.48,Math.sin(q)*th*.42);ctx.stroke();ctx.fillStyle='#d8ddda';ctx.beginPath();ctx.arc(Math.cos(q)*tw*.48,Math.sin(q)*th*.42,tw*.14,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#27343a';ctx.lineWidth=2;ctx.stroke();ctx.strokeStyle='#b9c4c4';ctx.lineWidth=Math.max(3,tw*.1)}ctx.fillStyle='#253139';ctx.beginPath();ctx.arc(0,0,tw*.13,0,Math.PI*2);ctx.fill()}
-else if(game==='bottles'){ctx.fillStyle='#cdd7d3';ctx.strokeStyle='#29363c';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(-tw*.31,-th*.43,tw*.62,th*.84,tw*.1);ctx.fill();ctx.stroke();ctx.fillStyle='#bb935a';ctx.fillRect(-tw*.24,-th*.04,tw*.48,th*.2)}
-else{ctx.fillStyle=game==='steel'?'#d8dfdc':'#e5e3d9';ctx.strokeStyle='#27343a';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-tw*.34,-th*.48);ctx.lineTo(tw*.34,-th*.48);ctx.lineTo(tw*.43,-th*.13);ctx.lineTo(tw*.31,th*.05);ctx.lineTo(tw*.27,th*.43);ctx.lineTo(-tw*.27,th*.43);ctx.lineTo(-tw*.31,th*.05);ctx.lineTo(-tw*.43,-th*.13);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle='#29343a';ctx.beginPath();ctx.arc(0,-th*.18,tw*.13,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#b94037';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-th*.18,tw*.1,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#2d383d';ctx.fillRect(-tw*.035,th*.42,tw*.07,th*.18);ctx.fillRect(-tw*.3,th*.59,tw*.6,Math.max(3,th*.04))}ctx.restore()}
-function draw(){const w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;ctx.clearRect(0,0,w,h);background(w,h);targets.forEach((t,i)=>drawTarget(t,i,w,h));if(detected){ctx.save();ctx.strokeStyle='#ff3930';ctx.lineWidth=2;ctx.shadowColor='#ff2118';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(detected.x*w,detected.y*h,9,0,Math.PI*2);ctx.stroke();ctx.restore()}}
-function stats(){ $('hits').textContent=hits;$('total').textContent=total;$('accuracy').textContent=hits+misses?Math.round(hits/(hits+misses)*100)+'%':'—'}
-function addHistory(text){const row=document.createElement('div');row.textContent=text;$('history').prepend(row)}
-function bilinearPoint(px,py){if(calibration.length!==4)return{x:px,y:py};const [tl,tr,br,bl]=calibration;const lerp=(a,b,t)=>a+(b-a)*t;let v=Math.max(0,Math.min(1,(py-lerp(tl.y,tr.y,px))/(lerp(bl.y,br.y,px)-lerp(tl.y,tr.y,px)||1)));let left=lerp(tl.x,bl.x,v),right=lerp(tr.x,br.x,v),u=(px-left)/(right-left||1);return{x:Math.max(0,Math.min(1,u)),y:v}}
-function findRedSpot(data,w,h){const mask=new Uint8Array(w*h),threshold=Math.max(125,245-sensitivity*.9);for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){let k=y*w+x,j=k*4,r=data[j],g=data[j+1],b=data[j+2];if(r>=threshold&&r-g>Math.max(55,105-sensitivity*.35)&&r-b>Math.max(48,95-sensitivity*.3)&&g<Math.min(180,75+sensitivity*.55)&&b<Math.min(180,85+sensitivity*.5))mask[k]=1}let best=null,bestScore=0,seen=new Uint8Array(w*h),stack=[];for(let k=0;k<mask.length;k++){if(!mask[k]||seen[k])continue;stack.length=0;stack.push(k);seen[k]=1;let n=0,sx=0,sy=0,brightness=0;while(stack.length){let q=stack.pop(),x=q%w,y=(q/w)|0,j=q*4,r=data[j],g=data[j+1],b=data[j+2],wt=Math.max(1,r-g);n++;sx+=x*wt;sy+=y*wt;brightness+=r;for(let yy=Math.max(0,y-1);yy<=Math.min(h-1,y+1);yy++)for(let xx=Math.max(0,x-1);xx<=Math.min(w-1,x+1);xx++){let z=yy*w+xx;if(mask[z]&&!seen[z]){seen[z]=1;stack.push(z)}}}if(n>=2&&n<=180){let score=brightness/n*Math.min(n,18);if(score>bestScore){bestScore=score;best={x:sx/(n?brightness/(n||1):1),y:sy/(n?brightness/(n||1):1),size:n,score}}}}return best}
-function processCamera(){if(!stream||video.readyState<2)return null;const w=240,h=Math.max(135,Math.round(240*video.videoHeight/video.videoWidth));if(proc.width!==w||proc.height!==h){proc.width=w;proc.height=h}pctx.drawImage(video,0,0,w,h);const p=findRedSpot(pctx.getImageData(0,0,w,h).data,w,h);if(!p)return null;return{x:p.x/w,y:p.y/h,size:p.size}}
-function matchTarget(point){let best=-1,dist=Infinity;targets.forEach((t,i)=>{if(!t.alive)return;const dx=(point.x-t.x)/(t.w*.52),dy=(point.y-t.y)/(t.h*.52),d=dx*dx+dy*dy;if(d<=1&&d<dist){dist=d;best=i}});return best}
-function registerPoint(raw){const q=bilinearPoint(raw.x,raw.y);detected=q;const index=matchTarget(q);if(index<0){misses++;stats();addHistory('Miss · outside target');return}const t=targets[index],d=Math.hypot((q.x-t.x)/t.w,(q.y-t.y)/t.h),score=Math.max(1,Math.round(10-d*8));hits++;total+=score;$('last').textContent=score;addHistory(`Hit ${hits} · target ${index+1} · ${score}/10`);if(game==='spinner'){t.angle+=.8}else if(game==='steel'){t.alive=true}else{t.alive=false}stats();if(targets.every(x=>!x.alive)){setTimeout(()=>{if(running)makeTargets()},550)}draw()}
-function loop(){if(!running)return;frameCount++;if(detectorOn&&!calibrating&&frameCount%2===0){const p=processCamera();if(p){if(lastSpot&&Math.hypot(p.x-lastSpot.x,p.y-lastSpot.y)<.035)stable++;else stable=0;lastSpot=p;detected=bilinearPoint(p.x,p.y);if(stable>=2&&Date.now()-lastHit>700){lastHit=Date.now();stable=0;registerPoint(p)}}else{lastSpot=null;stable=0;detected=null}}if(game==='moving'&&detectorOn){targets.forEach((t,i)=>{if(t.alive)t.x=.09+((Math.sin(Date.now()/900+i*1.1)+1)/2)*.82})}draw();raf=requestAnimationFrame(loop)}
-async function startCamera(){try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('Camera access is not available. Open this site over HTTPS in Safari.');stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}});video.srcObject=stream;await video.play();$('camDot').classList.add('good');$('camStatus').textContent='Rear camera on';$('startCam').textContent='Stop camera';$('hint').innerHTML='<b>Camera ready.</b> Calibrate the four corners of the projected range, then enable detection. Keep the phone fixed.';draw()}catch(e){$('camStatus').textContent='Camera unavailable';$('hint').textContent='Could not start camera: '+e.message+' Check Safari camera permission and use the HTTPS site.'}}
-function stopCamera(){detectorOn=false;running=false;clearInterval(timer);cancelAnimationFrame(raf);stream?.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;$('camDot').classList.remove('good');$('camStatus').textContent='Camera off';$('startCam').textContent='Start rear camera';$('detect').textContent='Enable detection';draw()}
-function beginCalibration(){if(!stream){$('hint').textContent='Start the rear camera before calibration.';return}calibrating=true;preview=true;video.classList.add('show');calibration=[];stable=0;['i','i','i','i'].forEach((_,i)=>$('calMarks').children[i].style.display='none');$('hint').textContent='Tap the four corners of the projected range as seen in the camera preview, in order: top-left, top-right, bottom-right, bottom-left.';draw()}
-stage.addEventListener('pointerdown',e=>{if(!calibrating)return;const r=stage.getBoundingClientRect(),p={x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};calibration.push(p);const mark=$('calMarks').children[calibration.length-1];mark.style.left=p.x*100+'%';mark.style.top=p.y*100+'%';mark.style.display='block';if(calibration.length===4){calibrating=false;$('hint').innerHTML='<b>Calibration saved.</b> Turn off Camera preview if it creates projector feedback, then enable detection. Recalibrate if the camera or screen moves.';$('camStatus').textContent='Calibrated';$('camDot').classList.add('good')}draw()});
-$('startCam').onclick=()=>stream?stopCamera():startCamera();$('calibrate').onclick=beginCalibration;$('detect').onclick=()=>{if(!stream){$('hint').textContent='Start the rear camera before enabling detection.';return}if(calibration.length!==4){$('hint').textContent='Calibrate all four projected range corners before enabling detection.';return}detectorOn=!detectorOn;$('detect').textContent=detectorOn?'Pause detection':'Enable detection';if(detectorOn){if(!running){running=true;startedAt=Date.now();timer=setInterval(()=>{let s=Math.floor((Date.now()-startedAt)/1000);$('elapsed').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},250)}cancelAnimationFrame(raf);loop()}else{cancelAnimationFrame(raf)}$('hint').textContent=detectorOn?'Detection is active. Keep the phone fixed and hold the red laser spot steady briefly for a hit.':'Detection paused.'};
-$('overlay').onclick=()=>{preview=!preview;video.classList.toggle('show',preview);$('overlay').textContent=preview?'Hide camera preview':'Camera preview';draw()};$('sensitivity').oninput=e=>{sensitivity=Number(e.target.value);$('sensitivityLabel').textContent=sensitivity+'%'};$('sensitivityDown').onclick=()=>{sensitivity=Math.max(20,sensitivity-10);$('sensitivity').value=sensitivity;$('sensitivityLabel').textContent=sensitivity+'%'};$('sensitivityUp').onclick=()=>{sensitivity=Math.min(100,sensitivity+10);$('sensitivity').value=sensitivity;$('sensitivityLabel').textContent=sensitivity+'%'};
-$('count').onchange=e=>{count=Number(e.target.value);makeTargets()};document.querySelectorAll('[data-game]').forEach(b=>b.onclick=()=>{game=b.dataset.game;document.querySelectorAll('[data-game]').forEach(x=>x.classList.toggle('active',x===b));makeTargets()});$('reset').onclick=()=>{hits=misses=total=0;running=false;detectorOn=false;clearInterval(timer);cancelAnimationFrame(raf);$('detect').textContent='Enable detection';$('last').textContent='—';$('elapsed').textContent='00:00';$('history').innerHTML='<div>No hits recorded.</div>';makeTargets();stats()};$('projector').onclick=()=>{const on=app.classList.toggle('projector-mode');$('projector').textContent=on?'Exit projector':'Projector mode';setTimeout(resize,150)};document.addEventListener('keydown',e=>{if(e.key==='Escape'){app.classList.remove('projector-mode');$('projector').textContent='Projector mode';setTimeout(resize,150)}});window.addEventListener('resize',resize);window.addEventListener('orientationchange',resize);window.addEventListener('beforeunload',stopCamera);makeTargets();resize();stats();
-})();
-</script></body></html>
+<body>
+  <main class="app" id="appRoot">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-main">Range Lab</div>
+        <div class="brand-sub">Dry-fire training</div>
+      </div>
+      <div class="mode-badge">Practice mode</div>
+    </header>
+
+    <div class="layout">
+      <section class="panel">
+        <div class="stage-wrap">
+          <div class="stage" id="stage">
+            <video id="cameraFeed" autoplay playsinline muted></video>
+            <canvas id="rangeCanvas"></canvas>
+            <div class="stage-label" id="sceneTitle">Pop-up knockdown</div>
+            <div class="score-chip">Score <span id="scoreValue">0</span></div>
+            <div class="calibration-markers" id="calMarkers">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn primary" id="startCameraBtn">Start rear camera</button>
+          <button class="btn" id="calibrateBtn">Calibrate corners</button>
+          <button class="btn" id="toggleDetectionBtn">Enable detection</button>
+          <button class="btn" id="previewBtn">Camera preview</button>
+          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn" id="projectorBtn">Projector mode</button>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><strong id="hitsValue">0</strong><span>Hits</span></div>
+          <div class="stat"><strong id="lastValue">—</strong><span>Last score</span></div>
+          <div class="stat"><strong id="timeValue">00:00</strong><span>Time</span></div>
+          <div class="stat"><strong id="accuracyValue">—</strong><span>Accuracy</span></div>
+        </div>
+
+        <div class="hint" id="statusHint">
+          <strong>Projector setup:</strong> point the phone camera at the screen, start the rear camera, calibrate the four corners, then enable detection. This app maps the red laser dot to target hits the same way a sports training simulator does.
+        </div>
+      </section>
+
+      <aside class="aside">
+        <section class="panel wide">
+          <h3>Choose a drill</h3>
+          <div class="games">
+            <button class="game-btn active" data-game="knock">Pop-up</button>
+            <button class="game-btn" data-game="steel">Steel rack</button>
+            <button class="game-btn" data-game="spinner">Spinner</button>
+            <button class="game-btn" data-game="balloon">Balloon</button>
+            <button class="game-btn" data-game="bottles">Bottle line</button>
+            <button class="game-btn" data-game="moving">Moving</button>
+          </div>
+
+          <div class="field">
+            <label for="layoutSelect">Target layout</label>
+            <select id="layoutSelect">
+              <option value="5">5 targets</option>
+              <option value="7" selected>7 targets</option>
+              <option value="9">9 targets</option>
+            </select>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Laser settings</h3>
+          <div class="settings-grid">
+            <button class="mini-btn" id="sensitivityDown">Sensitivity −</button>
+            <button class="mini-btn" id="sensitivityUp">Sensitivity +</button>
+          </div>
+          <div class="field">
+            <label for="sensitivity">Laser sensitivity <span id="sensitivityLabel">75%</span></label>
+            <input id="sensitivity" type="range" min="20" max="100" value="75" />
+          </div>
+        </section>
+
+        <section class="panel">
+          <h3>Recent hits</h3>
+          <div class="history" id="historyList">
+            <div>No hits recorded.</div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="footer">Dry-fire practice only • use inert laser training devices and follow all firearm safety rules.</div>
+  </main>
+
+  <script>
+    (() => {
+      const appRoot = document.getElementById('appRoot');
+      const stage = document.getElementById('stage');
+      const canvas = document.getElementById('rangeCanvas');
+      const ctx = canvas.getContext('2d');
+      const video = document.getElementById('cameraFeed');
+      const statusHint = document.getElementById('statusHint');
+      const sceneTitle = document.getElementById('sceneTitle');
+      const scoreValue = document.getElementById('scoreValue');
+      const hitsValue = document.getElementById('hitsValue');
+      const lastValue = document.getElementById('lastValue');
+      const timeValue = document.getElementById('timeValue');
+      const accuracyValue = document.getElementById('accuracyValue');
+      const historyList = document.getElementById('historyList');
+      const calMarkers = [...document.querySelectorAll('#calMarkers span')];
+      const sensitivityEl = document.getElementById('sensitivity');
+      const sensitivityLabel = document.getElementById('sensitivityLabel');
+
+      const layouts = {
+        5: [[0.14, 0.3], [0.32, 0.24], [0.5, 0.3], [0.68, 0.24], [0.86, 0.3]],
+        7: [[0.12, 0.28], [0.37, 0.22], [0.63, 0.22], [0.88, 0.28], [0.25, 0.6], [0.5, 0.56], [0.75, 0.6]],
+        9: [[0.1, 0.28], [0.3, 0.24], [0.5, 0.24], [0.7, 0.24], [0.9, 0.28], [0.2, 0.6], [0.4, 0.56], [0.6, 0.56], [0.8, 0.6]]
+      };
+
+      const names = {
+        knock: 'Pop-up knockdown',
+        steel: 'Steel rack',
+        spinner: 'Reactive spinner',
+        balloon: 'Balloon arcade',
+        bottles: 'Bottle line',
+        moving: 'Moving targets'
+      };
+
+      let game = 'knock';
+      let count = 7;
+      let targets = [];
+      let hits = 0;
+      let misses = 0;
+      let totalScore = 0;
+      let running = false;
+      let startedAt = 0;
+      let updateTimer = null;
+      let animFrame = 0;
+      let sensitivity = 75;
+      let calibration = [];
+      let calibrating = false;
+      let stream = null;
+      let detectorOn = false;
+      let cameraPreviewVisible = false;
+      let detectedSpot = null;
+      let lastTrackedPoint = null;
+      let stableCounter = 0;
+      let lastHitAt = 0;
+      let averageFrame = 0;
+
+      const procCanvas = document.createElement('canvas');
+      const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+
+      function round(value) {
+        return Number(value.toFixed(3));
+      }
+
+      function updateStats() {
+        hitsValue.textContent = String(hits);
+        scoreValue.textContent = String(totalScore);
+        accuracyValue.textContent = (hits + misses) > 0 ? `${Math.round((hits / (hits + misses)) * 100)}%` : '—';
+      }
+
+      function addHistory(text) {
+        const row = document.createElement('div');
+        row.textContent = text;
+        historyList.prepend(row);
+      }
+
+      function updateTimerText() {
+        const elapsed = running ? Math.floor((Date.now() - startedAt) / 1000) : 0;
+        const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const secs = String(elapsed % 60).padStart(2, '0');
+        timeValue.textContent = `${mins}:${secs}`;
+      }
+
+      function resizeCanvas() {
+        const rect = stage.getBoundingClientRect();
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * ratio);
+        canvas.height = Math.round(rect.height * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        drawScene();
+      }
+
+      function makeTargets() {
+        const positions = layouts[count] || layouts[7];
+        const scale = count === 5 ? 1.12 : count === 9 ? 0.88 : 1;
+
+        targets = positions.map(([x, y], idx) => {
+          const size = game === 'balloon' ? 0.07 : game === 'spinner' ? 0.06 : game === 'bottles' ? 0.06 : 0.08;
+          return {
+            x, y,
+            w: size * scale,
+            h: game === 'balloon' ? 0.18 : game === 'spinner' ? 0.16 : game === 'bottles' ? 0.18 : 0.22,
+            alive: true,
+            phase: idx * 0.9,
+            rotation: 0,
+            label: idx + 1
+          };
+        });
+
+        sceneTitle.textContent = names[game];
+        drawScene();
+      }
+
+      function drawBackground(w, h) {
+        const sky = ctx.createLinearGradient(0, 0, 0, h);
+        sky.addColorStop(0, '#4d6877');
+        sky.addColorStop(0.44, '#8d8d7e');
+        sky.addColorStop(0.6, '#625d50');
+        sky.addColorStop(1, '#1c2123');
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, w, h);
+
+        const sun = ctx.createRadialGradient(w * 0.75, h * 0.14, 20, w * 0.75, h * 0.14, 220);
+        sun.addColorStop(0, 'rgba(255, 223, 140, 0.9)');
+        sun.addColorStop(0.25, 'rgba(255, 210, 100, 0.3)');
+        sun.addColorStop(1, 'rgba(255, 210, 100, 0)');
+        ctx.fillStyle = sun;
+        ctx.fillRect(0, 0, w, h);
+
+        ctx.fillStyle = '#646152';
+        ctx.beginPath();
+        ctx.moveTo(0, h * 0.54);
+        ctx.lineTo(w * 0.18, h * 0.4);
+        ctx.lineTo(w * 0.33, h * 0.5);
+        ctx.lineTo(w * 0.48, h * 0.33);
+        ctx.lineTo(w * 0.62, h * 0.49);
+        ctx.lineTo(w * 0.79, h * 0.38);
+        ctx.lineTo(w, h * 0.45);
+        ctx.lineTo(w, h * 0.7);
+        ctx.lineTo(0, h * 0.7);
+        ctx.closePath();
+        ctx.fill();
+
+        const ground = ctx.createLinearGradient(0, h * 0.58, 0, h);
+        ground.addColorStop(0, '#87735d');
+        ground.addColorStop(0.4, '#51493f');
+        ground.addColorStop(1, '#272b2d');
+        ctx.fillStyle = ground;
+        ctx.fillRect(0, h * 0.58, w, h * 0.42);
+
+        ctx.strokeStyle = 'rgba(233, 216, 169, 0.22)';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 5; i++) {
+          const y = h * (0.7 + i * 0.05);
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y + 12);
+          ctx.stroke();
+        }
+      }
+
+      function drawTarget(target, index) {
+        const px = target.x * canvas.width;
+        const py = target.y * canvas.height;
+        const tw = target.w * canvas.width;
+        const th = target.h * canvas.height;
+
+        if (!target.alive) return;
+
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.rotate(target.rotation || 0);
+        ctx.shadowColor = 'rgba(0,0,0,0.35)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 6;
+
+        if (game === 'balloon') {
+          const body = ctx.createRadialGradient(-tw * 0.18, -th * 0.2, 12, 0, 0, tw * 0.8);
+          body.addColorStop(0, '#e8b262');
+          body.addColorStop(0.3, '#d24d47');
+          body.addColorStop(1, '#7f2f37');
+          ctx.fillStyle = body;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, tw * 0.55, th * 0.52, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.ellipse(-tw * 0.12, -th * 0.14, tw * 0.12, th * 0.12, 0, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.strokeStyle = '#f3e1bc';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(0, th * 0.52);
+          ctx.lineTo(0, th * 0.78);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(-tw * 0.08, th * 0.78);
+          ctx.lineTo(0, th * 0.96);
+          ctx.lineTo(tw * 0.08, th * 0.78);
+          ctx.fillStyle = '#ebe0c0';
+          ctx.fill();
+        } else if (game === 'spinner') {
+          ctx.strokeStyle = '#d8e4df';
+          ctx.lineWidth = Math.max(3, tw * 0.12);
+          for (let a = 0; a < 4; a++) {
+            const angle = a * (Math.PI / 2) + target.rotation;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(Math.cos(angle) * tw * 0.52, Math.sin(angle) * th * 0.4);
+            ctx.stroke();
+          }
+          ctx.fillStyle = '#243039';
+          ctx.beginPath();
+          ctx.arc(0, 0, tw * 0.16, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (game === 'bottles') {
+          ctx.fillStyle = '#dfe8e6';
+          ctx.strokeStyle = '#23313c';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.roundRect(-tw * 0.33, -th * 0.45, tw * 0.66, th * 0.9, tw * 0.06);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#b98a57';
+          ctx.fillRect(-tw * 0.22, -th * 0.08, tw * 0.44, th * 0.2);
+        } else if (game === 'steel') {
+          ctx.fillStyle = '#dfe8e6';
+          ctx.strokeStyle = '#1d2c36';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-tw * 0.42, -th * 0.38);
+          ctx.lineTo(tw * 0.42, -th * 0.38);
+          ctx.lineTo(tw * 0.52, -th * 0.12);
+          ctx.lineTo(tw * 0.34, th * 0.12);
+          ctx.lineTo(tw * 0.28, th * 0.48);
+          ctx.lineTo(-tw * 0.28, th * 0.48);
+          ctx.lineTo(-tw * 0.34, th * 0.12);
+          ctx.lineTo(-tw * 0.52, -th * 0.12);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#2a343b';
+          ctx.beginPath();
+          ctx.arc(0, -th * 0.15, tw * 0.13, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = '#e5e1d8';
+          ctx.strokeStyle = '#2a3a43';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-tw * 0.38, -th * 0.48);
+          ctx.lineTo(tw * 0.38, -th * 0.48);
+          ctx.lineTo(tw * 0.48, -th * 0.14);
+          ctx.lineTo(tw * 0.35, th * 0.12);
+          ctx.lineTo(tw * 0.27, th * 0.48);
+          ctx.lineTo(-tw * 0.27, th * 0.48);
+          ctx.lineTo(-tw * 0.35, th * 0.12);
+          ctx.lineTo(-tw * 0.48, -th * 0.14);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = '#d44a41';
+          ctx.beginPath();
+          ctx.arc(0, -th * 0.12, tw * 0.12, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      function drawDetectedSpot(point) {
+        if (!point) return;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(238, 94, 82, 0.18)';
+        ctx.arc(point.x * canvas.width, point.y * canvas.height, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.strokeStyle = '#ff5f4d';
+        ctx.lineWidth = 2;
+        ctx.shadowColor = 'rgba(255, 95, 77, 0.8)';
+        ctx.shadowBlur = 10;
+        ctx.arc(point.x * canvas.width, point.y * canvas.height, 8, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawScene() {
+        const w = canvas.width / (window.devicePixelRatio || 1);
+        const h = canvas.height / (window.devicePixelRatio || 1);
+
+        drawBackground(w, h);
+
+        targets.forEach((target, i) => {
+          if (target.alive) drawTarget(target, i);
+        });
+
+        if (detectedSpot) drawDetectedSpot(detectedSpot);
+      }
+
+      function setHint(text) {
+        statusHint.innerHTML = text;
+      }
+
+      function resetHistory() {
+        historyList.innerHTML = '<div>No hits recorded.</div>';
+      }
+
+      function resetDrill() {
+        clearInterval(updateTimer);
+        cancelAnimationFrame(animFrame);
+        running = false;
+        hits = 0;
+        misses = 0;
+        totalScore = 0;
+        lastValue.textContent = '—';
+        timeValue.textContent = '00:00';
+        updateStats();
+        resetHistory();
+        makeTargets();
+      }
+
+      function applyGame(nextGame) {
+        game = nextGame;
+        document.querySelectorAll('.game-btn').forEach((btn) => {
+          btn.classList.toggle('active', btn.dataset.game === nextGame);
+        });
+        makeTargets();
+      }
+
+      function calibrateMarkerSet() {
+        calMarkers.forEach((marker) => { marker.style.display = 'none'; });
+      }
+
+      function setCalibrationPoint(point) {
+        const marker = calMarkers[calibration.length];
+        if (!marker) return;
+        marker.style.left = `${point.x * 100}%`;
+        marker.style.top = `${point.y * 100}%`;
+        marker.style.display = 'block';
+      }
+
+      function bilinearMap(pt) {
+        if (calibration.length !== 4) return pt;
+
+        const [tl, tr, br, bl] = calibration;
+        const x = pt.x;
+        const y = pt.y;
+
+        const y1 = tl.y + (bl.y - tl.y) * y;
+        const y2 = tr.y + (br.y - tr.y) * y;
+        const xMapped = x * (y2 - y1) + y1;
+        const result = {
+          x: Math.max(0, Math.min(1, xMapped)),
+          y: Math.max(0, Math.min(1, y))
+        };
+
+        return result;
+      }
+
+      function isInTarget(point, target) {
+        if (!target.alive) return false;
+        const px = point.x;
+        const py = point.y;
+        const cx = target.x;
+        const cy = target.y;
+        const rx = target.w * 0.7;
+        const ry = target.h * 0.7;
+        return (px >= cx - rx && px <= cx + rx && py >= cy - ry && py <= cy + ry);
+      }
+
+      function locateHit(point) {
+        let bestIndex = -1;
+        let bestDistance = Infinity;
+
+        for (let i = 0; i < targets.length; i++) {
+          const t = targets[i];
+          if (!t.alive) continue;
+          const dx = point.x - t.x;
+          const dy = point.y - t.y;
+          const d = Math.hypot(dx / (t.w * 1.5), dy / (t.h * 1.6));
+          if (d < bestDistance) {
+            bestDistance = d;
+            bestIndex = i;
+          }
+        }
+
+        if (bestIndex === -1) return null;
+        return targetHitScore(targets[bestIndex], point);
+      }
+
+      function targetHitScore(target, point) {
+        const dx = point.x - target.x;
+        const dy = point.y - target.y;
+        const dist = Math.hypot(dx / target.w, dy / target.h);
+        const score = Math.max(1, Math.round(10 - dist * 9));
+        return { index: targets.indexOf(target), score };
+      }
+
+      function registerTargetHit(point) {
+        const match = locateHit(point);
+        if (!match) {
+          misses += 1;
+          updateStats();
+          addHistory('Miss • outside target');
+          return;
+        }
+
+        const target = targets[match.index];
+        target.alive = false;
+        hits += 1;
+        totalScore += match.score;
+        lastValue.textContent = String(match.score);
+        addHistory(`Hit ${hits} • +${match.score}`);
+        updateStats();
+
+        if (targets.every((t) => !t.alive)) {
+          setTimeout(() => {
+            if (running) makeTargets();
+          }, 500);
+        }
+
+        drawScene();
+      }
+
+      function pointerToNormalized(event) {
+        const rect = stage.getBoundingClientRect();
+        return {
+          x: (event.clientX - rect.left) / rect.width,
+          y: (event.clientY - rect.top) / rect.height
+        };
+      }
+
+      stage.addEventListener('pointerdown', (event) => {
+        if (calibrating) {
+          const pt = pointerToNormalized(event);
+          calibration.push({ x: pt.x, y: pt.y });
+          setCalibrationPoint(pt);
+
+          if (calibration.length === 4) {
+            calibrating = false;
+            setHint('<strong>Calibration saved.</strong> The range is ready. Start detection when the projected screen is stable.');
+            drawScene();
+          }
+          return;
+        }
+
+        if (!detectorOn) {
+          const pt = pointerToNormalized(event);
+          registerTargetHit(pt);
+        }
+      });
+
+      function getRedDot(frameData, width, height) {
+        const threshold = 125 + ((100 - sensitivity) * 1.1);
+        let best = null;
+        let bestScore = 0;
+
+        for (let y = 0; y < height; y += 2) {
+          for (let x = 0; x < width; x += 2) {
+            const idx = (y * width + x) * 4;
+            const r = frameData[idx];
+            const g = frameData[idx + 1];
+            const b = frameData[idx + 2];
+
+            if (r >= threshold && r > g + 35 && r > b + 30 && g < 200 && b < 200) {
+              const brightness = r - g - b;
+              if (brightness > bestScore) {
+                bestScore = brightness;
+                best = { x: x / width, y: y / height, r, g, b };
+              }
+            }
+          }
+        }
+
+        return best;
+      }
+
+      function processCameraFrame() {
+        if (!stream || video.readyState < 2) return;
+
+        const targetW = 240;
+        const targetH = Math.max(135, Math.round((video.videoHeight / video.videoWidth) * targetW));
+
+        if (procCanvas.width !== targetW || procCanvas.height !== targetH) {
+          procCanvas.width = targetW;
+          procCanvas.height = targetH;
+        }
+
+        procCtx.drawImage(video, 0, 0, targetW, targetH);
+        const image = procCtx.getImageData(0, 0, targetW, targetH);
+        const red = getRedDot(image.data, targetW, targetH);
+
+        if (!red) {
+          detectedSpot = null;
+          lastTrackedPoint = null;
+          stableCounter = 0;
+          return;
+        }
+
+        const mapped = bilinearMap({ x: red.x, y: red.y });
+        const stable = lastTrackedPoint ? Math.hypot(mapped.x - lastTrackedPoint.x, mapped.y - lastTrackedPoint.y) < 0.03 : false;
+
+        if (stable) stableCounter += 1; else stableCounter = 0;
+        lastTrackedPoint = mapped;
+
+        if (stableCounter >= 2 && Date.now() - lastHitAt > 350) {
+          lastHitAt = Date.now();
+          detectedSpot = mapped;
+          registerTargetHit(mapped);
+        } else {
+          detectedSpot = mapped;
+        }
+
+        drawScene();
+      }
+
+      function tick() {
+        if (running) updateTimerText();
+        if (detectorOn && stream) processCameraFrame();
+        if (game === 'moving') {
+          targets.forEach((target, index) => {
+            if (target.alive) {
+              target.x = 0.1 + ((Math.sin((Date.now() / 600) + index) + 1) / 2) * 0.8;
+            }
+          });
+        }
+
+        if (game === 'spinner') {
+          targets.forEach((target) => {
+            if (target.alive) target.rotation += 0.05;
+          });
+        }
+
+        drawScene();
+        animFrame = requestAnimationFrame(tick);
+      }
+
+      async function startCamera() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setHint('<strong>Camera not available.</strong> Open this app over HTTPS or use a compatible browser with camera permissions enabled.');
+          return;
+        }
+
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+          });
+
+          video.srcObject = stream;
+          await video.play();
+          video.classList.toggle('visible', cameraPreviewVisible);
+
+          document.getElementById('startCameraBtn').textContent = 'Stop camera';
+          setHint('<strong>Camera ready.</strong> Adjust the projector and phone position, then calibrate the four screen corners.');
+        } catch (error) {
+          setHint('<strong>Camera access failed.</strong> Allow camera permission and reload the page. This must be served over HTTPS.');
+        }
+      }
+
+      function stopCamera() {
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+          stream = null;
+        }
+        if (video.srcObject) video.srcObject = null;
+        document.getElementById('startCameraBtn').textContent = 'Start rear camera';
+        detectorOn = false;
+        document.getElementById('toggleDetectionBtn').textContent = 'Enable detection';
+        if (video) video.classList.remove('visible');
+        setHint('<strong>Camera off.</strong> Start the rear camera and calibrate the screen to begin laser hit detection.');
+      }
+
+      function startDetection() {
+        if (!stream) {
+          setHint('<strong>Camera required.</strong> Start the rear camera before enabling detection.');
+          return;
+        }
+
+        if (calibration.length !== 4) {
+          setHint('<strong>Calibration required.</strong> Tap all four corners of the screen before turning on detection.');
+          return;
+        }
+
+        detectorOn = !detectorOn;
+        document.getElementById('toggleDetectionBtn').textContent = detectorOn ? 'Pause detection' : 'Enable detection';
+
+        if (detectorOn && !running) {
+          running = true;
+          startedAt = Date.now();
+        }
+
+        if (detectorOn) {
+          setHint('<strong>Detection active.</strong> Hold the red laser dot still briefly to register a hit.');
+        } else {
+          setHint('<strong>Detection paused.</strong> The app is waiting for you to resume detection.');
+        }
+      }
+
+      function beginCalibration() {
+        if (!stream) {
+          setHint('<strong>Camera required.</strong> Start the rear camera before calibrating the screen.');
+          return;
+        }
+
+        calibration = [];
+        calibrating = true;
+        calibrateMarkerSet();
+        setHint('<strong>Calibrate now.</strong> Tap the projected screen corners in order: top-left, top-right, bottom-right, bottom-left.');
+      }
+
+      function togglePreview() {
+        cameraPreviewVisible = !cameraPreviewVisible;
+        video.classList.toggle('visible', cameraPreviewVisible);
+        document.getElementById('previewBtn').textContent = cameraPreviewVisible ? 'Hide preview' : 'Camera preview';
+      }
+
+      function toggleProjectorMode() {
+        appRoot.classList.toggle('projector-mode');
+        document.getElementById('projectorBtn').textContent = appRoot.classList.contains('projector-mode') ? 'Exit projector' : 'Projector mode';
+        setTimeout(resizeCanvas, 120);
+      }
+
+      document.getElementById('startCameraBtn').addEventListener('click', () => {
+        if (stream) stopCamera(); else startCamera();
+      });
+
+      document.getElementById('calibrateBtn').addEventListener('click', beginCalibration);
+      document.getElementById('toggleDetectionBtn').addEventListener('click', startDetection);
+      document.getElementById('previewBtn').addEventListener('click', togglePreview);
+      document.getElementById('resetBtn').addEventListener('click', resetDrill);
+      document.getElementById('projectorBtn').addEventListener('click', toggleProjectorMode);
+
+      document.getElementById('sensitivity').addEventListener('input', (event) => {
+        sensitivity = Number(event.target.value);
+        sensitivityLabel.textContent = `${sensitivity}%`;
+      });
+
+      document.getElementById('sensitivityDown').addEventListener('click', () => {
+        sensitivity = Math.max(20, sensitivity - 10);
+        sensitivityEl.value = String(sensitivity);
+        sensitivityLabel.textContent = `${sensitivity}%`;
+      });
+
+      document.getElementById('sensitivityUp').addEventListener('click', () => {
+        sensitivity = Math.min(100, sensitivity + 10);
+        sensitivityEl.value = String(sensitivity);
+        sensitivityLabel.textContent = `${sensitivity}%`;
+      });
+
+      document.getElementById('layoutSelect').addEventListener('change', (event) => {
+        count = Number(event.target.value);
+        makeTargets();
+      });
+
+      document.querySelectorAll('.game-btn').forEach((btn) => {
+        btn.addEventListener('click', () => applyGame(btn.dataset.game));
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          appRoot.classList.remove('projector-mode');
+          document.getElementById('projectorBtn').textContent = 'Projector mode';
+          setTimeout(resizeCanvas, 120);
+        }
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('beforeunload', stopCamera);
+
+      sensitivityLabel.textContent = `${sensitivity}%`;
+      makeTargets();
+      updateStats();
+      updateTimerText();
+      resizeCanvas();
+      animFrame = requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>
