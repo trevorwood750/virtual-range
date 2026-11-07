@@ -613,8 +613,6 @@
       let totalScore = 0;
       let running = false;
       let startedAt = 0;
-      let updateTimer = null;
-      let animFrame = 0;
       let sensitivity = 75;
       let calibration = [];
       let calibrating = false;
@@ -625,13 +623,14 @@
       let lastTrackedPoint = null;
       let stableCounter = 0;
       let lastHitAt = 0;
-      let averageFrame = 0;
+      let animFrame = 0;
+      let lastSceneUpdate = 0;
 
       const procCanvas = document.createElement('canvas');
       const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
 
-      function round(value) {
-        return Number(value.toFixed(3));
+      function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
       }
 
       function updateStats() {
@@ -666,18 +665,14 @@
         const positions = layouts[count] || layouts[7];
         const scale = count === 5 ? 1.12 : count === 9 ? 0.88 : 1;
 
-        targets = positions.map(([x, y], idx) => {
-          const size = game === 'balloon' ? 0.07 : game === 'spinner' ? 0.06 : game === 'bottles' ? 0.06 : 0.08;
-          return {
-            x, y,
-            w: size * scale,
-            h: game === 'balloon' ? 0.18 : game === 'spinner' ? 0.16 : game === 'bottles' ? 0.18 : 0.22,
-            alive: true,
-            phase: idx * 0.9,
-            rotation: 0,
-            label: idx + 1
-          };
-        });
+        targets = positions.map(([x, y], idx) => ({
+          x, y,
+          w: (game === 'balloon' ? 0.07 : game === 'spinner' ? 0.06 : game === 'bottles' ? 0.06 : 0.08) * scale,
+          h: (game === 'balloon' ? 0.18 : game === 'spinner' ? 0.16 : game === 'bottles' ? 0.18 : 0.22) * scale,
+          alive: true,
+          phase: idx * 0.9,
+          rotation: 0
+        }));
 
         sceneTitle.textContent = names[game];
         drawScene();
@@ -852,16 +847,16 @@
 
         ctx.save();
         ctx.beginPath();
+        ctx.arc(point.x * canvas.width, point.y * canvas.height, 12, 0, Math.PI * 2);
         ctx.fillStyle = 'rgba(238, 94, 82, 0.18)';
-        ctx.arc(point.x * canvas.width, point.y * canvas.height, 18, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.beginPath();
+        ctx.arc(point.x * canvas.width, point.y * canvas.height, 7, 0, Math.PI * 2);
         ctx.strokeStyle = '#ff5f4d';
         ctx.lineWidth = 2;
         ctx.shadowColor = 'rgba(255, 95, 77, 0.8)';
         ctx.shadowBlur = 10;
-        ctx.arc(point.x * canvas.width, point.y * canvas.height, 8, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
@@ -872,8 +867,8 @@
 
         drawBackground(w, h);
 
-        targets.forEach((target, i) => {
-          if (target.alive) drawTarget(target, i);
+        targets.forEach((target) => {
+          if (target.alive) drawTarget(target, 0);
         });
 
         if (detectedSpot) drawDetectedSpot(detectedSpot);
@@ -888,7 +883,6 @@
       }
 
       function resetDrill() {
-        clearInterval(updateTimer);
         cancelAnimationFrame(animFrame);
         running = false;
         hits = 0;
@@ -899,6 +893,7 @@
         updateStats();
         resetHistory();
         makeTargets();
+        animFrame = requestAnimationFrame(tick);
       }
 
       function applyGame(nextGame) {
@@ -921,33 +916,80 @@
         marker.style.display = 'block';
       }
 
-      function bilinearMap(pt) {
-        if (calibration.length !== 4) return pt;
+      function mapCalibrationPoint(x, y) {
+        if (calibration.length !== 4) return { x, y };
 
         const [tl, tr, br, bl] = calibration;
-        const x = pt.x;
-        const y = pt.y;
+        const nx = clamp((x - tl.x) / Math.max(0.0001, Math.abs(tr.x - tl.x)), 0, 1);
+        const ny = clamp((y - tl.y) / Math.max(0.0001, Math.abs(bl.y - tl.y)), 0, 1);
 
-        const y1 = tl.y + (bl.y - tl.y) * y;
-        const y2 = tr.y + (br.y - tr.y) * y;
-        const xMapped = x * (y2 - y1) + y1;
-        const result = {
-          x: Math.max(0, Math.min(1, xMapped)),
-          y: Math.max(0, Math.min(1, y))
+        const xMapped = (nx * (tr.x - tl.x) + (1 - nx) * (bl.x - tl.x)) * 0.5 + (nx * (br.x - tr.x) + (1 - nx) * (bl.x - tl.x)) * 0.5;
+        const yMapped = (ny * (bl.y - tl.y) + (1 - ny) * (tr.y - tl.y)) * 0.5 + (ny * (br.y - bl.y) + (1 - ny) * (tr.y - tl.y)) * 0.5;
+
+        return {
+          x: clamp(xMapped, 0, 1),
+          y: clamp(yMapped, 0, 1)
         };
-
-        return result;
       }
 
-      function isInTarget(point, target) {
-        if (!target.alive) return false;
-        const px = point.x;
-        const py = point.y;
-        const cx = target.x;
-        const cy = target.y;
-        const rx = target.w * 0.7;
-        const ry = target.h * 0.7;
-        return (px >= cx - rx && px <= cx + rx && py >= cy - ry && py <= cy + ry);
+      function findRedCluster(data, width, height) {
+        const thresholdR = 120 + ((100 - sensitivity) * 0.9);
+        const result = [];
+        const visited = new Uint8Array(width * height);
+
+        for (let y = 0; y < height; y += 2) {
+          for (let x = 0; x < width; x += 2) {
+            const idx = (y * width + x) * 4;
+            const r = data[idx];
+            const g = data[idx + 1];
+            const b = data[idx + 2];
+
+            if (r >= thresholdR && r > g * 1.25 && r > b * 1.25 && g < 210 && b < 210) {
+              const block = { x, y, count: 1, totalX: x, totalY: y, intensity: r };
+              const queue = [{ x, y }];
+              visited[y * width + x] = 1;
+
+              while (queue.length) {
+                const p = queue.pop();
+                for (let dy = -1; dy <= 1; dy++) {
+                  for (let dx = -1; dx <= 1; dx++) {
+                    if (!dx && !dy) continue;
+                    const cx = p.x + dx;
+                    const cy = p.y + dy;
+                    if (cx < 0 || cy < 0 || cx >= width || cy >= height) continue;
+                    const pos = cy * width + cx;
+                    if (visited[pos]) continue;
+
+                    const i = pos * 4;
+                    const rr = data[i];
+                    const gg = data[i + 1];
+                    const bb = data[i + 2];
+
+                    if (rr >= thresholdR && rr > gg * 1.25 && rr > bb * 1.25 && gg < 210 && bb < 210) {
+                      visited[pos] = 1;
+                      queue.push({ x: cx, y: cy });
+                      block.count += 1;
+                      block.totalX += cx;
+                      block.totalY += cy;
+                      block.intensity += rr;
+                    }
+                  }
+                }
+              }
+
+              if (block.count >= 3) {
+                result.push(block);
+              }
+            }
+          }
+        }
+
+        if (!result.length) return null;
+
+        const best = result.sort((a, b) => b.count - a.count)[0];
+        const cx = best.totalX / best.count / width;
+        const cy = best.totalY / best.count / height;
+        return { x: clamp(cx, 0.02, 0.98), y: clamp(cy, 0.02, 0.98) };
       }
 
       function locateHit(point) {
@@ -957,29 +999,30 @@
         for (let i = 0; i < targets.length; i++) {
           const t = targets[i];
           if (!t.alive) continue;
+
           const dx = point.x - t.x;
           const dy = point.y - t.y;
-          const d = Math.hypot(dx / (t.w * 1.5), dy / (t.h * 1.6));
+          const d = Math.hypot(dx / (t.w * 1.7), dy / (t.h * 1.9));
           if (d < bestDistance) {
             bestDistance = d;
             bestIndex = i;
           }
         }
 
-        if (bestIndex === -1) return null;
-        return targetHitScore(targets[bestIndex], point);
-      }
+        if (bestIndex < 0) return null;
 
-      function targetHitScore(target, point) {
+        const target = targets[bestIndex];
         const dx = point.x - target.x;
         const dy = point.y - target.y;
         const dist = Math.hypot(dx / target.w, dy / target.h);
         const score = Math.max(1, Math.round(10 - dist * 9));
-        return { index: targets.indexOf(target), score };
+
+        return { index: bestIndex, score };
       }
 
       function registerTargetHit(point) {
         const match = locateHit(point);
+
         if (!match) {
           misses += 1;
           updateStats();
@@ -998,7 +1041,7 @@
         if (targets.every((t) => !t.alive)) {
           setTimeout(() => {
             if (running) makeTargets();
-          }, 500);
+          }, 450);
         }
 
         drawScene();
@@ -1007,8 +1050,8 @@
       function pointerToNormalized(event) {
         const rect = stage.getBoundingClientRect();
         return {
-          x: (event.clientX - rect.left) / rect.width,
-          y: (event.clientY - rect.top) / rect.height
+          x: clamp((event.clientX - rect.left) / rect.width, 0, 1),
+          y: clamp((event.clientY - rect.top) / rect.height, 0, 1)
         };
       }
 
@@ -1032,36 +1075,11 @@
         }
       });
 
-      function getRedDot(frameData, width, height) {
-        const threshold = 125 + ((100 - sensitivity) * 1.1);
-        let best = null;
-        let bestScore = 0;
-
-        for (let y = 0; y < height; y += 2) {
-          for (let x = 0; x < width; x += 2) {
-            const idx = (y * width + x) * 4;
-            const r = frameData[idx];
-            const g = frameData[idx + 1];
-            const b = frameData[idx + 2];
-
-            if (r >= threshold && r > g + 35 && r > b + 30 && g < 200 && b < 200) {
-              const brightness = r - g - b;
-              if (brightness > bestScore) {
-                bestScore = brightness;
-                best = { x: x / width, y: y / height, r, g, b };
-              }
-            }
-          }
-        }
-
-        return best;
-      }
-
       function processCameraFrame() {
         if (!stream || video.readyState < 2) return;
 
         const targetW = 240;
-        const targetH = Math.max(135, Math.round((video.videoHeight / video.videoWidth) * targetW));
+        const targetH = Math.max(140, Math.round((video.videoHeight / video.videoWidth) * targetW));
 
         if (procCanvas.width !== targetW || procCanvas.height !== targetH) {
           procCanvas.width = targetW;
@@ -1070,7 +1088,7 @@
 
         procCtx.drawImage(video, 0, 0, targetW, targetH);
         const image = procCtx.getImageData(0, 0, targetW, targetH);
-        const red = getRedDot(image.data, targetW, targetH);
+        const red = findRedCluster(image.data, targetW, targetH);
 
         if (!red) {
           detectedSpot = null;
@@ -1079,18 +1097,17 @@
           return;
         }
 
-        const mapped = bilinearMap({ x: red.x, y: red.y });
-        const stable = lastTrackedPoint ? Math.hypot(mapped.x - lastTrackedPoint.x, mapped.y - lastTrackedPoint.y) < 0.03 : false;
+        const mapped = calibration.length === 4 ? mapCalibrationPoint(red.x, red.y) : red;
+        const distance = lastTrackedPoint ? Math.hypot(mapped.x - lastTrackedPoint.x, mapped.y - lastTrackedPoint.y) : Infinity;
 
-        if (stable) stableCounter += 1; else stableCounter = 0;
+        if (distance < 0.04) stableCounter += 1; else stableCounter = 0;
         lastTrackedPoint = mapped;
 
-        if (stableCounter >= 2 && Date.now() - lastHitAt > 350) {
+        detectedSpot = mapped;
+
+        if (stableCounter >= 2 && Date.now() - lastHitAt > 220) {
           lastHitAt = Date.now();
-          detectedSpot = mapped;
           registerTargetHit(mapped);
-        } else {
-          detectedSpot = mapped;
         }
 
         drawScene();
@@ -1099,6 +1116,7 @@
       function tick() {
         if (running) updateTimerText();
         if (detectorOn && stream) processCameraFrame();
+
         if (game === 'moving') {
           targets.forEach((target, index) => {
             if (target.alive) {
